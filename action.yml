@@ -29,7 +29,7 @@ inputs:
     required: false
     default: './'
   server-dir:
-    description: 'Server directory — FTP path (trailing slash required)'
+    description: 'Web root on the FTP server — the path where your site files live (e.g. /web/, /public_html/, /htdocs/). Defaults to / (FTP account root), but most hosts put web files in a subdirectory.'
     required: false
     default: '/'
   site-url:

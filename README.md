@@ -39,8 +39,21 @@ The hash algorithm is identical to Git's own object hashing. If a file has the s
 | `ftp-port` | | `21` | FTP port |
 | `ftps` | | `true` | Use FTPS explicit TLS |
 | `local-dir` | | `./` | Local directory to deploy |
-| `server-dir` | | `/` | Server directory (FTP path) |
+| `server-dir` | | `/` | **Web root on the FTP server** — the path where your site files live |
 | `dry-run` | | `false` | Show diff without uploading |
+
+### Finding your `server-dir`
+
+The FTP account root (`/`) is usually not the web root. Set `server-dir` to wherever your site files live:
+
+| Host type | Typical `server-dir` |
+|---|---|
+| All-Inkl, Strato, Ionos | `/web/` |
+| cPanel hosts | `/public_html/` |
+| Plesk hosts | `/httpdocs/` |
+| Custom / root-level | `/` |
+
+When in doubt: log in via FTP and look for the directory that contains your `index.html`.
 
 ## Requirements
 
