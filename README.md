@@ -28,7 +28,7 @@ There's nothing to lose, corrupt, or let go stale — every deploy asks the serv
 
 ## FTP Deploy Action — State-File-Based Tools vs. Agundur's Hash-Based Approach
 
-Most FTP deploy actions (like the widely-used [SamKirkland/FTP-Deploy-Action](https://github.com/SamKirkland/FTP-Deploy-Action)) track what's been uploaded in a state file (`.ftp-deploy-sync-state.json` by default). That works well — until the state file gets deleted, or someone edits a file directly on the server. Then the state file and reality drift apart, and the next deploy either re-uploads everything or misses a change.
+Most FTP deploy actions (like the widely-used SamKirkland/FTP-Deploy-Action) track what's been uploaded in a state file (`.ftp-deploy-sync-state.json` by default). That works well — until the state file gets deleted, or someone edits a file directly on the server. Then the state file and reality drift apart, and the next deploy either re-uploads everything or misses a change.
 
 This action skips the state file entirely: every deploy asks the server directly, via the same Git blob hash Git itself uses. Delete the state, change a file by hand, run on a brand-new CI runner — the result is always correct, because there's nothing to go stale.
 
@@ -92,8 +92,6 @@ When in doubt: log in via FTP and look for the directory that contains your `ind
 - Server must run **PHP** (for `hashme.php`)
 - FTP or FTPS access
 - Public HTTP access to the site URL during deploy
-
-Inspired by [SamKirkland/FTP-Deploy-Action](https://github.com/SamKirkland/FTP-Deploy-Action) (MIT).
 
 ## License
 
