@@ -2,7 +2,9 @@
   <img src="assets/logo.png" width="120" alt="FTP Hash Deploy Action logo">
 </div>
 
-# FTP Hash Deploy Action
+# FTP Deploy Action
+
+## with Server-Side Hash Diffing
 
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-FTP%20Hash%20Deploy-blue?logo=github)](https://github.com/marketplace/actions/ftp-hash-deploy)
 
@@ -23,6 +25,14 @@ The hash algorithm is identical to Git's own object hashing. If a file has the s
 ## No state file, ever
 
 There's nothing to lose, corrupt, or let go stale — every deploy asks the server directly what it already has, via the same hash Git uses for its own objects. Delete everything, rerun on a fresh CI runner, doesn't matter: the result is always correct, because the server's own files are the only source of truth.
+
+## FTP Deploy Action — State-File-Based Tools vs. Agundur's Hash-Based Approach
+
+Most FTP deploy actions (like the widely-used [SamKirkland/FTP-Deploy-Action](https://github.com/SamKirkland/FTP-Deploy-Action)) track what's been uploaded in a state file (`.ftp-deploy-sync-state.json` by default). That works well — until the state file gets deleted, or someone edits a file directly on the server. Then the state file and reality drift apart, and the next deploy either re-uploads everything or misses a change.
+
+This action skips the state file entirely: every deploy asks the server directly, via the same Git blob hash Git itself uses. Delete the state, change a file by hand, run on a brand-new CI runner — the result is always correct, because there's nothing to go stale.
+
+**Trade-off:** this requires your server to support PHP (a tiny script is uploaded, used once, then deleted). If your host can't run PHP — a Node/static host, for example — SamKirkland's action is a solid, battle-tested choice instead.
 
 ## Usage
 
