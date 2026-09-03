@@ -1,4 +1,12 @@
-# FTP Hash Deploy Action
+<div align="center">
+  <img src="assets/logo.png" width="120" alt="FTP Hash Deploy Action logo">
+</div>
+
+# FTP Deploy Action
+
+## with Server-Side Hash Diffing
+
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-FTP%20Hash%20Deploy-blue?logo=github)](https://github.com/marketplace/actions/ftp-hash-deploy)
 
 > Deploy only changed files via FTP/FTPS — using server-side **Git-style hashing**.
 
@@ -13,6 +21,18 @@ No state files. No timestamp guesswork. The server tells you what it has. You up
 5. Uploads only files where hashes differ — deletes files no longer present locally
 
 The hash algorithm is identical to Git's own object hashing. If a file has the same Git blob hash on server and locally, it is bit-for-bit identical and won't be re-uploaded.
+
+## No state file, ever
+
+There's nothing to lose, corrupt, or let go stale — every deploy asks the server directly what it already has, via the same hash Git uses for its own objects. Delete everything, rerun on a fresh CI runner, doesn't matter: the result is always correct, because the server's own files are the only source of truth.
+
+## FTP Deploy Action — State-File-Based Tools vs. Agundur's Hash-Based Approach
+
+Most FTP deploy actions (like the widely-used SamKirkland/FTP-Deploy-Action) track what's been uploaded in a state file (`.ftp-deploy-sync-state.json` by default). That works well — until the state file gets deleted, or someone edits a file directly on the server. Then the state file and reality drift apart, and the next deploy either re-uploads everything or misses a change.
+
+This action skips the state file entirely: every deploy asks the server directly, via the same Git blob hash Git itself uses. Delete the state, change a file by hand, run on a brand-new CI runner — the result is always correct, because there's nothing to go stale.
+
+**Trade-off:** this requires your server to support PHP (a tiny script is uploaded, used once, then deleted). If your host can't run PHP — a Node/static host, for example — SamKirkland's action is a solid, battle-tested choice instead.
 
 ## Usage
 
@@ -55,22 +75,23 @@ The FTP account root (`/`) is usually not the web root. Set `server-dir` to wher
 
 When in doubt: log in via FTP and look for the directory that contains your `index.html`.
 
+## Troubleshooting
+
+**Connection timeout / connection refused / "control socket" errors**
+
+- Uses **passive FTP mode by default** (Python's `ftplib` default) — this already avoids most firewall issues, since it doesn't require the server to open an inbound connection back to the runner.
+- The connection timeout is currently fixed at 30 seconds, not user-configurable.
+- If your host requires **implicit** FTPS (typically port 990) instead of **explicit** FTPS (port 21, what this action uses), the connection will fail — check with your host which one they expect.
+- If your host doesn't support FTPS at all, set `ftps: false` to fall back to plain FTP.
+- **IP allowlisting**: GitHub-hosted runners use a large, changing range of IP addresses. If your FTP server restricts access to specific IPs, deploys from GitHub Actions will be blocked regardless of correct credentials — you'll need a self-hosted runner or to open the firewall for GitHub's published IP ranges.
+
+**Before debugging further:** run with `dry-run: true` first. It connects, authenticates, and computes the full diff without transferring anything — most config problems (wrong port, wrong `server-dir`, bad credentials) show up here without any risk to your live site.
+
 ## Requirements
 
 - Server must run **PHP** (for `hashme.php`)
 - FTP or FTPS access
 - Public HTTP access to the site URL during deploy
-
-## vs. SamKirkland/FTP-Deploy-Action
-
-| | FTP-Deploy-Action | ftp-hash-deploy-action |
-|---|---|---|
-| Change detection | Local state file | Server-side hash query |
-| Hash algorithm | — | Git blob SHA1 |
-| State drift | Possible (state file ≠ server) | Impossible (server is the source of truth) |
-| PHP required | No | Yes |
-
-Inspired by [SamKirkland/FTP-Deploy-Action](https://github.com/SamKirkland/FTP-Deploy-Action) (MIT).
 
 ## License
 
